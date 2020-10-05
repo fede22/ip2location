@@ -90,7 +90,7 @@ func TestMySQL_localDB(t *testing.T) {
 
 	var (
 		from string
-		to string
+		to   string
 	)
 
 	query := "select ip_from, ip_to from ip2proxy_px7 limit 1"
@@ -119,10 +119,65 @@ func TestMySQL_GetIP(t *testing.T) {
 	}
 
 	ip := "281470698521601"
-	p, err := client.GetIP(ip)
+	p, err := client.GetByIP(ip)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(p)
 }
 
+func TestMySQL_GetByCountryCode(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	countryCode, limit := "AR", 50
+	p, err := client.GetByCountryCode(countryCode, limit)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(p)
+}
+
+func TestMySQL_GetISPNames(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	countryCode := "FR"
+	p, err := client.GetISPNames(countryCode)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(len(p), p)
+}
+
+func TestMySQL_GetIPCount(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	countryCode := "AR"
+	count, err := client.GetIPCount(countryCode)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(count)
+}
+
+func TestMySQL_TopProxyTypes(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	limit := 3
+	proxyTypes, err := client.TopProxyTypes(limit)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(len(proxyTypes), proxyTypes)
+}
