@@ -31,8 +31,8 @@ func TestIp2proxy_sampleDB(t *testing.T) {
 	fmt.Printf("ProxyType: %s\n", all["ProxyType"])
 	fmt.Printf("CountryShort: %s\n", all["CountryShort"])
 	fmt.Printf("CountryLong: %s\n", all["CountryLong"])
-	fmt.Printf("Region: %s\n", all["Region"])
-	fmt.Printf("City: %s\n", all["City"])
+	fmt.Printf("RegionName: %s\n", all["RegionName"])
+	fmt.Printf("CityName: %s\n", all["CityName"])
 	fmt.Printf("ISP: %s\n", all["ISP"])
 	fmt.Printf("Domain: %s\n", all["Domain"])
 	fmt.Printf("UsageType: %s\n", all["UsageType"])
@@ -68,8 +68,8 @@ func TestIp2proxy_realDB(t *testing.T) {
 	fmt.Printf("ProxyType: %s\n", all["ProxyType"])
 	fmt.Printf("CountryShort: %s\n", all["CountryShort"])
 	fmt.Printf("CountryLong: %s\n", all["CountryLong"])
-	fmt.Printf("Region: %s\n", all["Region"])
-	fmt.Printf("City: %s\n", all["City"])
+	fmt.Printf("RegionName: %s\n", all["RegionName"])
+	fmt.Printf("CityName: %s\n", all["CityName"])
 	fmt.Printf("ISP: %s\n", all["ISP"])
 	fmt.Printf("Domain: %s\n", all["Domain"])
 	fmt.Printf("UsageType: %s\n", all["UsageType"])
@@ -83,17 +83,18 @@ func TestIp2proxy_realDB(t *testing.T) {
 }
 
 func TestMySQL_localDB(t *testing.T) {
-	db, err := Client()
+	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	var (
-		from int
-		to int
+		from string
+		to string
 	)
 
-	rows, err := db.Query("select ip_from, ip_to from ip2proxy_px7 limit 1")
+	query := "select ip_from, ip_to from ip2proxy_px7 limit 1"
+	rows, err := client.db.Query(query)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,4 +112,17 @@ func TestMySQL_localDB(t *testing.T) {
 	}
 }
 
+func TestMySQL_GetIP(t *testing.T) {
+	client, err := NewClient()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ip := "281470698521601"
+	p, err := client.GetIP(ip)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(p)
+}
 
