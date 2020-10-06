@@ -4,6 +4,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"github.com/fede22/ip2location/internal/domain"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -41,29 +42,29 @@ func client(maxOpenConns, maxIdleConns int, connMaxLifetime time.Duration) (Clie
 	return Client{db}, nil
 }
 
-func (c Client) GetByIP(address string) (Proxy, error) {
-	var p Proxy
+func (c Client) GetByIP(address string) (domain.Proxy, error) {
+	var p domain.Proxy
 	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
 		" `as` from ip2proxy.ip2proxy_px7 where ? between ip_from and ip_to;"
 	rows, err := c.db.Query(query, address)
 	if err != nil {
-		return Proxy{}, err
+		return domain.Proxy{}, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&p.AddressFrom, &p.AddressTo, &p.ProxyType, &p.CountryCode,
 				&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
 		if err != nil {
-			return Proxy{}, err
+			return domain.Proxy{}, err
 		}
 	}
 	if err := rows.Err(); err != nil {
-		return Proxy{}, err
+		return domain.Proxy{}, err
 	}
 	return p, nil
 }
 
-func (c Client) GetByCountryCode(countryCode string, limit int) ([]Proxy, error) {
+func (c Client) GetByCountryCode(countryCode string, limit int) ([]domain.Proxy, error) {
 	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
 		" `as` from ip2proxy.ip2proxy_px7 where country_code = ? limit ?;"
 	rows, err := c.db.Query(query, countryCode, limit)
@@ -71,9 +72,9 @@ func (c Client) GetByCountryCode(countryCode string, limit int) ([]Proxy, error)
 		return nil, err
 	}
 	defer rows.Close()
-	proxies := make([]Proxy, 0)
+	proxies := make([]domain.Proxy, 0)
 	for rows.Next() {
-		var p Proxy
+		var p domain.Proxy
 		err := rows.Scan(&p.AddressFrom, &p.AddressTo, &p.ProxyType, &p.CountryCode,
 			&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
 		if err != nil {

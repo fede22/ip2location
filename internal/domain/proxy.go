@@ -1,4 +1,4 @@
-package db
+package domain
 
 //TODO use net.IP for addresses
 type Proxy struct {
