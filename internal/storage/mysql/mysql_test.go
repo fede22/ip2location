@@ -147,7 +147,7 @@ func TestMySQL_GetISPNames(t *testing.T) {
 	}
 
 	countryCode := "FR"
-	p, err := client.GetISPNames(countryCode)
+	p, err := client.GetISPs(countryCode)
 	if err != nil {
 		t.Fatal(err)
 	}

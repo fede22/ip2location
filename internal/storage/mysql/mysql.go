@@ -88,7 +88,7 @@ func (c Client) GetByCountryCode(countryCode string, limit int) ([]domain.Proxy,
 	return proxies, nil
 }
 
-func (c Client) GetISPNames(countryCode string) ([]string, error) {
+func (c Client) GetISPs(countryCode string) ([]string, error) {
 	query := "select isp from ip2proxy.ip2proxy_px7 where country_code = ? group by isp;"
 	rows, err := c.db.Query(query, countryCode)
 	if err != nil {
