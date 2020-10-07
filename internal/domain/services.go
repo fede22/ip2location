@@ -52,7 +52,7 @@ func (ps ProxyService) GetIPs(countryCode string, limit int) ([]IP, error) {
 			ips = append(ips, IP{Address: ip.String(), CountryName: p.CountryName, CityName: p.CityName})
 		}
 	}
-	return ips[:min(len(ips),limit)], nil
+	return ips[:min(len(ips), limit)], nil
 }
 
 func (ps ProxyService) GetIPCount(countryCode string) (int, error) {

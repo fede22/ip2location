@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/fede22/ip2location/internal/domain"
-	"math/big"
 	"net"
 	"time"
 
@@ -47,13 +46,13 @@ func (c client) GetProxy(address net.IP) (domain.Proxy, error) {
 	var p domain.Proxy
 	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
 		" `as` from ip2proxy.ip2proxy_px7 where ? between ip_from and ip_to;"
-	rows, err := c.db.Query(query, ipToDecimal(address))
+	rows, err := c.db.Query(query, domain.NetIP{IP: address}.ToDecimalIP())
 	if err != nil {
 		return domain.Proxy{}, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var addressFrom, addressTo string
+		var addressFrom, addressTo domain.DecimalIP
 		err := rows.Scan(&addressFrom, &addressTo, &p.ProxyType, &p.CountryCode,
 			&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
 		if err != nil {
@@ -81,7 +80,7 @@ func (c client) GetProxies(countryCode string, limit int) ([]domain.Proxy, error
 	proxies := make([]domain.Proxy, 0)
 	for rows.Next() {
 		var p domain.Proxy
-		var addressFrom, addressTo string
+		var addressFrom, addressTo domain.DecimalIP
 		err := rows.Scan(&addressFrom, &addressTo, &p.ProxyType, &p.CountryCode,
 			&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
 		if err != nil {
@@ -158,28 +157,13 @@ func (c client) TopProxyTypes(limit int) ([]string, error) {
 	return proxyTypes, nil
 }
 
-func decimalToIP(address string) (net.IP, error) {
-	x, ok := big.NewInt(0).SetString(address, 10)
-	if !ok {
-		return nil, fmt.Errorf("error parsing address %s to big int", address)
-	}
-	b := x.Bytes()
-	bs := [net.IPv6len]byte{}
-	copy(bs[net.IPv6len-len(b):], b)
-	return bs[:], nil
-}
-
-func ipToDecimal(ip net.IP) string {
-	return big.NewInt(0).SetBytes(ip).String()
-}
-
-func setAddresses(p domain.Proxy, addressFrom, addressTo string) (domain.Proxy, error) {
-	ip, err := decimalToIP(addressFrom)
+func setAddresses(p domain.Proxy, addressFrom, addressTo domain.DecimalIP) (domain.Proxy, error) {
+	ip, err := addressFrom.ToNetIP()
 	if err != nil {
 		return domain.Proxy{}, err
 	}
 	p.AddressFrom = ip
-	ip, err = decimalToIP(addressTo)
+	ip, err = addressTo.ToNetIP()
 	if err != nil {
 		return domain.Proxy{}, err
 	}

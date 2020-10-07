@@ -185,25 +185,3 @@ func TestMySQL_TopProxyTypes(t *testing.T) {
 	}
 	t.Log(len(proxyTypes), proxyTypes)
 }
-
-func TestMySQL_IPv4ToDecimalAndBack(t *testing.T) {
-	ip := net.ParseIP("192.0.2.1")
-	ip2, err := decimalToIP(ipToDecimal(ip))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !ip.Equal(ip2) {
-		t.Errorf("expected ip %s, got instead %s", ip, ip2)
-	}
-}
-
-func TestMySQL_IPv6ToDecimalAndBack(t *testing.T) {
-	ip := net.ParseIP("2001:0db8:85a3:0000:0000:8a2e:0370:7334")
-	ip2, err := decimalToIP(ipToDecimal(ip))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !ip.Equal(ip2) {
-		t.Errorf("expected ip %s, got instead %s", ip, ip2)
-	}
-}
