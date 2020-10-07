@@ -1,5 +1,4 @@
-//TODO use the same convention for naming all methods
-package db
+package mysql
 
 import (
 	"database/sql"
@@ -11,21 +10,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const (
-	driverName     = "mysql"
-	dataSourceName = "root:rootroot@tcp(localhost:3306)/ip2proxy?charset=utf8"
-)
-
 type client struct {
 	db *sql.DB
 }
 
-//TODO rename
-func NewClient() (client, error) {
-	return newClient(10, 10, time.Minute*3)
+func NewProxyRepository() (client, error) {
+	dataSourceName := "root:rootroot@tcp(localhost:3306)/ip2proxy?charset=utf8"
+	return newClient(dataSourceName, 10, 10, time.Minute*3)
 }
 
-func newClient(maxOpenConns, maxIdleConns int, connMaxLifetime time.Duration) (client, error) {
+func newClient(dataSourceName string, maxOpenConns, maxIdleConns int, connMaxLifetime time.Duration) (client, error) {
+	driverName := "mysql"
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
 		return client{}, err

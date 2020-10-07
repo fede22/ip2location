@@ -9,7 +9,7 @@ package main
 import (
 	"github.com/fede22/ip2location/internal/controllers"
 	"github.com/fede22/ip2location/internal/domain"
-	storage "github.com/fede22/ip2location/internal/storage"
+	"github.com/fede22/ip2location/internal/storage/mysql"
 	"github.com/gin-gonic/gin"
 	"log"
 )
@@ -17,7 +17,7 @@ import (
 func main() {
 	r := gin.Default()
 
-	repo, err := storage.NewClient()
+	repo, err := mysql.NewProxyRepository()
 	if err != nil {
 		log.Fatal(err)
 	}
