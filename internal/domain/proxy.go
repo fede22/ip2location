@@ -1,15 +1,14 @@
 package domain
 
 import (
-	"fmt"
 	"math/big"
 	"net"
 )
 
 //TODO use net.IP for Addresses
 type Proxy struct {
-	AddressFrom string
-	AddressTo   string
+	AddressFrom net.IP
+	AddressTo   net.IP
 	ProxyType   *string
 	CountryCode *string
 	CountryName *string
@@ -30,16 +29,8 @@ type IP struct {
 }
 
 func (p Proxy) Netblock() ([]net.IP, error) {
-	x := new(big.Int)
-	x, ok := x.SetString(p.AddressFrom, 10)
-	if !ok {
-		return nil, fmt.Errorf("error converting address %s to big int", p.AddressFrom)
-	}
-	y := new(big.Int)
-	y, ok = y.SetString(p.AddressTo, 10)
-	if !ok {
-		return nil, fmt.Errorf("error converting address %s to big int", p.AddressTo)
-	}
+	x := big.NewInt(0).SetBytes(p.AddressFrom)
+	y := big.NewInt(0).SetBytes(p.AddressTo)
 	ips := make([]net.IP, 0)
 	for x.Cmp(y) != 1 {
 		ips = append(ips, x.Bytes())
