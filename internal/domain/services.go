@@ -5,16 +5,15 @@ import (
 	"net"
 )
 
-type ProxyService struct {
+type service struct {
 	r ProxyRepository
 }
 
-// NewService creates an adding service with the necessary dependencies
-func NewService(r ProxyRepository) ProxyService {
-	return ProxyService{r}
+func NewProxyService(r ProxyRepository) service {
+	return service{r}
 }
 
-func (ps ProxyService) GetProxy(address string) (Proxy, error) {
+func (ps service) GetProxy(address string) (Proxy, error) {
 	ip := net.ParseIP(address)
 	if ip == nil {
 		return Proxy{}, fmt.Errorf("error parsing address %s as an IP address", address)
@@ -26,7 +25,7 @@ func (ps ProxyService) GetProxy(address string) (Proxy, error) {
 	return proxy, nil
 }
 
-func (ps ProxyService) GetISPs(countryCode string) ([]string, error) {
+func (ps service) GetISPs(countryCode string) ([]string, error) {
 	ipsNames, err := ps.r.GetISPs(countryCode)
 	if err != nil {
 		return nil, err
@@ -34,7 +33,7 @@ func (ps ProxyService) GetISPs(countryCode string) ([]string, error) {
 	return ipsNames, nil
 }
 
-func (ps ProxyService) GetIPs(countryCode string, limit int) ([]IP, error) {
+func (ps service) GetIPs(countryCode string, limit int) ([]IP, error) {
 	proxies, err := ps.r.GetProxies(countryCode, limit)
 	if err != nil {
 		return nil, err
@@ -55,7 +54,7 @@ func (ps ProxyService) GetIPs(countryCode string, limit int) ([]IP, error) {
 	return ips[:min(len(ips), limit)], nil
 }
 
-func (ps ProxyService) GetIPCount(countryCode string) (int, error) {
+func (ps service) GetIPCount(countryCode string) (int, error) {
 	count, err := ps.r.GetIPCount(countryCode)
 	if err != nil {
 		return 0, err
@@ -63,7 +62,7 @@ func (ps ProxyService) GetIPCount(countryCode string) (int, error) {
 	return count, nil
 }
 
-func (ps ProxyService) GetTopProxyTypes(limit int) ([]string, error) {
+func (ps service) GetTopProxyTypes(limit int) ([]string, error) {
 	proxyTypes, err := ps.r.TopProxyTypes(limit)
 	if err != nil {
 		return nil, err
