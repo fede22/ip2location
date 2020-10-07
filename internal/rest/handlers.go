@@ -1,15 +1,15 @@
-package controllers
+package rest
 
 import (
-	"github.com/fede22/ip2location/internal/domain"
+	"github.com/fede22/ip2location/internal/proxy"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type ProxyService interface {
-	GetProxy(address string) (domain.Proxy, error)
+	GetProxy(address string) (proxy.Proxy, error)
 	GetISPs(countryCode string) ([]string, error)
-	GetIPs(countryCode string, limit int) ([]domain.IP, error)
+	GetIPs(countryCode string, limit int) ([]proxy.IP, error)
 	GetIPCount(countryCode string) (int, error)
 	GetTopProxyTypes(limit int) ([]string, error)
 }

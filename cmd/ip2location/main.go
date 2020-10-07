@@ -7,8 +7,8 @@
 package main
 
 import (
-	"github.com/fede22/ip2location/internal/controllers"
-	"github.com/fede22/ip2location/internal/domain"
+	"github.com/fede22/ip2location/internal/rest"
+	"github.com/fede22/ip2location/internal/proxy"
 	"github.com/fede22/ip2location/internal/storage/mysql"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -21,16 +21,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s := domain.NewProxyService(repo)
+	s := proxy.NewService(repo)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
 	})
-	r.GET("/country/:country_code/ip", controllers.GetIPs(s))
-	r.GET("/country/:country_code/isp", controllers.GetISPs(s))
-	r.GET("/country/:country_code/ip_count", controllers.GetIPCount(s))
-	r.GET("/ip/:address", controllers.GetProxy(s))
-	r.GET("/top_proxy_types", controllers.GetTopProxyTypes(s))
+	r.GET("/country/:country_code/ip", rest.GetIPs(s))
+	r.GET("/country/:country_code/isp", rest.GetISPs(s))
+	r.GET("/country/:country_code/ip_count", rest.GetIPCount(s))
+	r.GET("/ip/:address", rest.GetProxy(s))
+	r.GET("/top_proxy_types", rest.GetTopProxyTypes(s))
 
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

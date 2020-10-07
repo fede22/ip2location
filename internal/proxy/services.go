@@ -1,4 +1,4 @@
-package domain
+package proxy
 
 import (
 	"fmt"
@@ -6,10 +6,10 @@ import (
 )
 
 type service struct {
-	r ProxyRepository
+	r Repository
 }
 
-func NewProxyService(r ProxyRepository) service {
+func NewService(r Repository) service {
 	return service{r}
 }
 
@@ -18,7 +18,7 @@ func (ps service) GetProxy(address string) (Proxy, error) {
 	if ip == nil {
 		return Proxy{}, fmt.Errorf("error parsing address %s as an IP address", address)
 	}
-	proxy, err := ps.r.GetProxy(ip)
+	proxy, err := ps.r.GetProxy(NetIP{IP: ip})
 	if err != nil {
 		return Proxy{}, err
 	}
@@ -48,7 +48,7 @@ func (ps service) GetIPs(countryCode string, limit int) ([]IP, error) {
 			return nil, err
 		}
 		for _, ip := range nb {
-			ips = append(ips, IP{Address: ip.String(), CountryName: p.CountryName, CityName: p.CityName})
+			ips = append(ips, IP{Address: ip, CountryName: p.CountryName, CityName: p.CityName})
 		}
 	}
 	return ips[:min(len(ips), limit)], nil

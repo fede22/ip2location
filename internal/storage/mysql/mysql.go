@@ -3,8 +3,8 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"github.com/fede22/ip2location/internal/domain"
-	"net"
+	"github.com/fede22/ip2location/internal/proxy"
+	"math/big"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -13,6 +13,8 @@ import (
 type client struct {
 	db *sql.DB
 }
+
+type decimalIP string
 
 func NewProxyRepository() (client, error) {
 	dataSourceName := "root:rootroot@tcp(localhost:3306)/ip2proxy?charset=utf8"
@@ -37,34 +39,34 @@ func newClient(dataSourceName string, maxOpenConns, maxIdleConns int, connMaxLif
 	return client{db}, nil
 }
 
-func (c client) GetProxy(address net.IP) (domain.Proxy, error) {
-	var p domain.Proxy
+func (c client) GetProxy(address proxy.NetIP) (proxy.Proxy, error) {
+	var p proxy.Proxy
 	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
 		" `as` from ip2proxy.ip2proxy_px7 where ? between ip_from and ip_to;"
-	rows, err := c.db.Query(query, domain.NetIP{IP: address}.ToDecimalIP())
+	rows, err := c.db.Query(query, toDecimalIP(address))
 	if err != nil {
-		return domain.Proxy{}, err
+		return proxy.Proxy{}, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var addressFrom, addressTo domain.DecimalIP
+		var addressFrom, addressTo decimalIP
 		err := rows.Scan(&addressFrom, &addressTo, &p.ProxyType, &p.CountryCode,
 			&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
 		if err != nil {
-			return domain.Proxy{}, err
+			return proxy.Proxy{}, err
 		}
 		p, err = setAddresses(p, addressFrom, addressTo)
 		if err != nil {
-			return domain.Proxy{}, err
+			return proxy.Proxy{}, err
 		}
 	}
 	if err := rows.Err(); err != nil {
-		return domain.Proxy{}, err
+		return proxy.Proxy{}, err
 	}
 	return p, nil
 }
 
-func (c client) GetProxies(countryCode string, limit int) ([]domain.Proxy, error) {
+func (c client) GetProxies(countryCode string, limit int) ([]proxy.Proxy, error) {
 	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
 		" `as` from ip2proxy.ip2proxy_px7 where country_code = ? limit ?;"
 	rows, err := c.db.Query(query, countryCode, limit)
@@ -72,10 +74,10 @@ func (c client) GetProxies(countryCode string, limit int) ([]domain.Proxy, error
 		return nil, err
 	}
 	defer rows.Close()
-	proxies := make([]domain.Proxy, 0)
+	proxies := make([]proxy.Proxy, 0)
 	for rows.Next() {
-		var p domain.Proxy
-		var addressFrom, addressTo domain.DecimalIP
+		var p proxy.Proxy
+		var addressFrom, addressTo decimalIP
 		err := rows.Scan(&addressFrom, &addressTo, &p.ProxyType, &p.CountryCode,
 			&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
 		if err != nil {
@@ -152,16 +154,36 @@ func (c client) TopProxyTypes(limit int) ([]string, error) {
 	return proxyTypes, nil
 }
 
-func setAddresses(p domain.Proxy, addressFrom, addressTo domain.DecimalIP) (domain.Proxy, error) {
-	ip, err := addressFrom.ToNetIP()
+func setAddresses(p proxy.Proxy, addressFrom, addressTo decimalIP) (proxy.Proxy, error) {
+	ip, err := addressFrom.toNetIP()
 	if err != nil {
-		return domain.Proxy{}, err
+		return proxy.Proxy{}, err
 	}
 	p.AddressFrom = ip
-	ip, err = addressTo.ToNetIP()
+	ip, err = addressTo.toNetIP()
 	if err != nil {
-		return domain.Proxy{}, err
+		return proxy.Proxy{}, err
 	}
 	p.AddressTo = ip
 	return p, nil
+}
+
+func (dec decimalIP) toNetIP() (proxy.NetIP, error) {
+	x, err := dec.toBigIntIP()
+	if err != nil {
+		return proxy.NetIP{}, err
+	}
+	return x.ToNetIP(), nil
+}
+
+func (dec decimalIP) toBigIntIP() (proxy.BigIntIP, error) {
+	x, ok := big.NewInt(0).SetString(string(dec), 10)
+	if !ok {
+		return proxy.BigIntIP{}, fmt.Errorf("error parsing address %s to big int", dec)
+	}
+	return proxy.BigIntIP{Int: x}, nil
+}
+
+func toDecimalIP(ip proxy.NetIP) decimalIP {
+	return decimalIP(ip.ToBigIntIP().String())
 }
