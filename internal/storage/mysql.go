@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/fede22/ip2location/internal/domain"
+	"math/big"
+	"net"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -16,44 +18,45 @@ const (
 	dataSourceName = "root:rootroot@tcp(localhost:3306)/ip2proxy?charset=utf8"
 )
 
-type Client struct  {
+type client struct {
 	db *sql.DB
 }
 
-func NewClient() (Client, error) {
-	return client(10, 10, time.Minute * 3)
+func NewClient() (client, error) {
+	return newClient(10, 10, time.Minute*3)
 }
 
-
-func client(maxOpenConns, maxIdleConns int, connMaxLifetime time.Duration) (Client, error) {
+func newClient(maxOpenConns, maxIdleConns int, connMaxLifetime time.Duration) (client, error) {
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
-		return Client{}, err
+		return client{}, err
 	}
 	db.SetMaxOpenConns(maxOpenConns)
 	db.SetMaxIdleConns(maxIdleConns)
 	if connMaxLifetime.Minutes() > 5 {
-		return Client{}, fmt.Errorf("connMaxLifetime should not be greater than 5 min")
+		return client{}, fmt.Errorf("connMaxLifetime should not be greater than 5 min")
 	}
 	db.SetConnMaxLifetime(connMaxLifetime)
 	if err := db.Ping(); err != nil {
-		return Client{}, err
+		return client{}, err
 	}
-	return Client{db}, nil
+	return client{db}, nil
 }
 
-func (c Client) GetByIP(address string) (domain.Proxy, error) {
+func (c client) GetProxy(address net.IP) (domain.Proxy, error) {
+	decimalIP := big.NewInt(0)
+	decimalIP.SetBytes(address)
 	var p domain.Proxy
 	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
 		" `as` from ip2proxy.ip2proxy_px7 where ? between ip_from and ip_to;"
-	rows, err := c.db.Query(query, address)
+	rows, err := c.db.Query(query, decimalIP.String())
 	if err != nil {
 		return domain.Proxy{}, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		err := rows.Scan(&p.AddressFrom, &p.AddressTo, &p.ProxyType, &p.CountryCode,
-				&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
+			&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
 		if err != nil {
 			return domain.Proxy{}, err
 		}
@@ -64,7 +67,7 @@ func (c Client) GetByIP(address string) (domain.Proxy, error) {
 	return p, nil
 }
 
-func (c Client) GetByCountryCode(countryCode string, limit int) ([]domain.Proxy, error) {
+func (c client) GetProxies(countryCode string, limit int) ([]domain.Proxy, error) {
 	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
 		" `as` from ip2proxy.ip2proxy_px7 where country_code = ? limit ?;"
 	rows, err := c.db.Query(query, countryCode, limit)
@@ -88,7 +91,7 @@ func (c Client) GetByCountryCode(countryCode string, limit int) ([]domain.Proxy,
 	return proxies, nil
 }
 
-func (c Client) GetISPs(countryCode string) ([]string, error) {
+func (c client) GetISPs(countryCode string) ([]string, error) {
 	query := "select isp from ip2proxy.ip2proxy_px7 where country_code = ? group by isp;"
 	rows, err := c.db.Query(query, countryCode)
 	if err != nil {
@@ -112,7 +115,7 @@ func (c Client) GetISPs(countryCode string) ([]string, error) {
 	return ispNames, nil
 }
 
-func (c Client) GetIPCount(countryCode string) (int, error) {
+func (c client) GetIPCount(countryCode string) (int, error) {
 	query := "select sum((ip_to - ip_from) + 1) from ip2proxy.ip2proxy_px7 where country_code = ?;"
 	var count int
 	err := c.db.QueryRow(query, countryCode).Scan(&count)
@@ -122,8 +125,7 @@ func (c Client) GetIPCount(countryCode string) (int, error) {
 	return count, nil
 }
 
-//TODO rename
-func (c Client) TopProxyTypes(limit int) ([]string, error) {
+func (c client) TopProxyTypes(limit int) ([]string, error) {
 	query := "select proxy_type, count(*) from ip2proxy.ip2proxy_px7 group by proxy_type order by count(*) desc limit ?;"
 	rows, err := c.db.Query(query, limit)
 	if err != nil {
@@ -147,4 +149,3 @@ func (c Client) TopProxyTypes(limit int) ([]string, error) {
 	}
 	return proxyTypes, nil
 }
-

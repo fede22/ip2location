@@ -6,20 +6,31 @@
 //	- Realizar UT.
 package main
 
-import "github.com/gin-gonic/gin"
-
+import (
+	"github.com/fede22/ip2location/internal/controllers"
+	"github.com/fede22/ip2location/internal/domain"
+	storage "github.com/fede22/ip2location/internal/storage"
+	"github.com/gin-gonic/gin"
+	"log"
+)
 
 func main() {
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {c.JSON(200, gin.H{"message": "pong"})})
-	//TODO fifty?
-	r.GET("/country/:country/ip/fifty", func(c *gin.Context) {c.JSON(200, gin.H{"message": c.FullPath()})})
-	r.GET("/ip/:address", func(c *gin.Context) {c.JSON(200, gin.H{"message": c.FullPath()})})
-	//TODO only for France?
-	r.GET("/country/:country/isp", func(c *gin.Context) {c.JSON(200, gin.H{"message": c.FullPath()})})
-	//TODO count?
-	r.GET("/country/:country/ip/count", func(c *gin.Context) {c.JSON(200, gin.H{"message": c.FullPath()})})
-	//TODO top?
-	r.GET("/top/proxy_type", func(c *gin.Context) {c.JSON(200, gin.H{"message": c.FullPath()})})
+
+	repo, err := storage.NewClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	s := domain.NewService(repo)
+
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
+	})
+	r.GET("/country/:country_code/ip", controllers.GetIPs(s))
+	r.GET("/country/:country_code/isp", controllers.GetISPs(s))
+	r.GET("/country/:country_code/ip_count", controllers.GetIPCount(s))
+	r.GET("/ip/:address", controllers.GetProxy(s))
+	r.GET("/top_proxy_types", controllers.GetTopProxyTypes(s))
+
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

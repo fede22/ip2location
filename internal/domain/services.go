@@ -1,5 +1,10 @@
 package domain
 
+import (
+	"fmt"
+	"net"
+)
+
 type ProxyService struct {
 	r ProxyRepository
 }
@@ -9,8 +14,12 @@ func NewService(r ProxyRepository) ProxyService {
 	return ProxyService{r}
 }
 
-func (ps ProxyService) GetByIP(address string) (Proxy, error) {
-	proxy, err := ps.r.GetByIP(address)
+func (ps ProxyService) GetProxy(address string) (Proxy, error) {
+	ip := net.ParseIP(address)
+	if ip == nil {
+		return Proxy{}, fmt.Errorf("error parsing address %s as an IP address", address)
+	}
+	proxy, err := ps.r.GetProxy(ip)
 	if err != nil {
 		return Proxy{}, err
 	}
@@ -26,7 +35,7 @@ func (ps ProxyService) GetISPs(countryCode string) ([]string, error) {
 }
 
 func (ps ProxyService) GetIPs(countryCode string, limit int) ([]IP, error) {
-	proxies, err := ps.r.GetByCountryCode(countryCode, limit)
+	proxies, err := ps.r.GetProxies(countryCode, limit)
 	if err != nil {
 		return nil, err
 	}

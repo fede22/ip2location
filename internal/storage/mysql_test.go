@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"github.com/ip2location/ip2proxy-go"
+	"net"
 	"testing"
 )
 
@@ -118,29 +119,33 @@ func TestMySQL_GetIP(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ip := "281470698521601"
-	p, err := client.GetByIP(ip)
+	decimalIP := "281470698521601"
+	ip := "1.0.4.1"
+	p, err := client.GetProxy(net.ParseIP(ip))
 	if err != nil {
 		t.Fatal(err)
+	}
+	if p.AddressFrom != decimalIP {
+		t.Errorf("expected decimal IP %s, got instead %s", decimalIP, p.AddressFrom)
 	}
 	t.Log(p)
 }
 
-func TestMySQL_GetByCountryCode(t *testing.T) {
+func TestMySQL_GetProxies(t *testing.T) {
 	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	countryCode, limit := "AR", 50
-	p, err := client.GetByCountryCode(countryCode, limit)
+	p, err := client.GetProxies(countryCode, limit)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Log(p)
 }
 
-func TestMySQL_GetISPNames(t *testing.T) {
+func TestMySQL_GetISPs(t *testing.T) {
 	client, err := NewClient()
 	if err != nil {
 		t.Fatal(err)

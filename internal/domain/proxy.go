@@ -6,6 +6,7 @@ import (
 	"net"
 )
 
+//TODO use net.IP for Addresses
 type Proxy struct {
 	AddressFrom string
 	AddressTo   string
