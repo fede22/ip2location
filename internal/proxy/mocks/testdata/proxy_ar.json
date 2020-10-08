@@ -1,0 +1,14 @@
+{
+  "AddressFrom": "23.237.23.73",
+  "AddressTo": "23.237.23.75",
+  "ProxyType": "PUB",
+  "CountryCode": "AR",
+  "CountryName": "Argentina",
+  "RegionName": "Ciudad Autonoma de Buenos Aires",
+  "CityName": "Buenos Aires",
+  "ISP": "FDCServers.net",
+  "Domain": "fdcservers.net",
+  "UsageType": "DCH",
+  "ASN": 174,
+  "AS": "COGENT-174"
+}
