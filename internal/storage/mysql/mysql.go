@@ -18,6 +18,10 @@ type client struct {
 type decimalIP string
 
 const getProxyQuery = "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn, `as` from ip2proxy_px7 where ? between ip_from and ip_to;"
+const getProxiesQuery = "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn, `as` from ip2proxy_px7 where country_code = ? limit ?;"
+const getISPsQuery = "select isp from ip2proxy_px7 where country_code = ? group by isp;"
+const getIPCountQuery = "select sum((ip_to - ip_from) + 1) as ip_count from ip2proxy_px7 where country_code = ?;"
+const topProxyTypesQuery = "select proxy_type, count(*) as proxy_type_count from ip2proxy_px7 group by proxy_type order by proxy_type_count desc limit ?;"
 
 func NewRepository() (client, error) {
 	dataSourceName := "root:rootroot@tcp(localhost:3306)/ip2proxy?charset=utf8"
@@ -51,9 +55,7 @@ func (c client) GetProxy(address domain.NetIP) (domain.Proxy, error) {
 }
 
 func (c client) GetProxies(countryCode string, limit int) ([]domain.Proxy, error) {
-	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
-		" `as` from ip2proxy.ip2proxy_px7 where country_code = ? limit ?;"
-	rows, err := c.db.Query(query, strings.ToUpper(countryCode), limit)
+	rows, err := c.db.Query(getProxiesQuery, strings.ToUpper(countryCode), limit)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +82,7 @@ func (c client) GetProxies(countryCode string, limit int) ([]domain.Proxy, error
 }
 
 func (c client) GetISPs(countryCode string) ([]string, error) {
-	query := "select isp from ip2proxy.ip2proxy_px7 where country_code = ? group by isp;"
-	rows, err := c.db.Query(query, strings.ToUpper(countryCode))
+	rows, err := c.db.Query(getISPsQuery, strings.ToUpper(countryCode))
 	if err != nil {
 		return nil, err
 	}
@@ -104,9 +105,8 @@ func (c client) GetISPs(countryCode string) ([]string, error) {
 }
 
 func (c client) GetIPCount(countryCode string) (int, error) {
-	query := "select sum((ip_to - ip_from) + 1) from ip2proxy.ip2proxy_px7 where country_code = ?;"
 	var count int
-	err := c.db.QueryRow(query, strings.ToUpper(countryCode)).Scan(&count)
+	err := c.db.QueryRow(getIPCountQuery, strings.ToUpper(countryCode)).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -114,8 +114,7 @@ func (c client) GetIPCount(countryCode string) (int, error) {
 }
 
 func (c client) TopProxyTypes(limit int) ([]string, error) {
-	query := "select proxy_type, count(*) from ip2proxy.ip2proxy_px7 group by proxy_type order by count(*) desc limit ?;"
-	rows, err := c.db.Query(query, limit)
+	rows, err := c.db.Query(topProxyTypesQuery, limit)
 	if err != nil {
 		return nil, err
 	}
