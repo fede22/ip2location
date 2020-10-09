@@ -26,11 +26,11 @@ func (ps service) GetProxy(address string) (Proxy, error) {
 }
 
 func (ps service) GetISPs(countryCode string) ([]string, error) {
-	ipsNames, err := ps.r.GetISPs(countryCode)
+	ispNames, err := ps.r.GetISPs(countryCode)
 	if err != nil {
 		return nil, err
 	}
-	return ipsNames, nil
+	return ispNames, nil
 }
 
 func (ps service) GetIPs(countryCode string, limit int) ([]IP, error) {

@@ -8,7 +8,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
-	"net"
 	"testing"
 )
 
@@ -29,7 +28,7 @@ func TestMockRepository(t *testing.T) {
 	}
 }
 
-func TestGetProxy(t *testing.T) {
+func TestService_GetProxy(t *testing.T) {
 	b, err := ioutil.ReadFile("mocks/testdata/proxy_ar.json")
 	if err != nil {
 		t.Fatalf("error loading golden file: %s", err)
@@ -42,17 +41,15 @@ func TestGetProxy(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	m := mocks.NewMockRepository(ctrl)
-	address := "23.237.23.73"
-	m.EXPECT().GetProxy(
-		gomock.Eq(domain.NetIP{net.ParseIP(address)})).Return(expected, nil)
+	m.EXPECT().GetProxy(gomock.Eq(expected.AddressFrom)).Return(expected, nil)
 
 	s := domain.NewService(m)
-	p, err := s.GetProxy(address)
-	assert.Nil(t, err, "error in GetProxy(%s)", address)
+	p, err := s.GetProxy(expected.AddressFrom.String())
+	assert.Nil(t, err, "error in GetProxy(%v)", expected.AddressFrom.String())
 	assert.Equal(t, expected, p)
 }
 
-func TestGetIPs(t *testing.T) {
+func TestService_GetIPs(t *testing.T) {
 	b, err := ioutil.ReadFile("mocks/testdata/proxies_ar.json")
 	if err != nil {
 		t.Fatalf("error loading golden file: %s", err)
@@ -60,7 +57,7 @@ func TestGetIPs(t *testing.T) {
 	var proxies []domain.Proxy
 	err = json.Unmarshal(b, &proxies)
 	if err != nil {
-		t.Fatalf("error unmarshaling proxy: %s", err)
+		t.Fatalf("error unmarshaling proxies: %s", err)
 	}
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -79,7 +76,52 @@ func TestGetIPs(t *testing.T) {
 
 	s := domain.NewService(m)
 	ips, err := s.GetIPs(countryCode, limit)
-	assert.Nil(t, err, "error in GetProxies(%v, %v)", countryCode, limit)
+	assert.Nil(t, err, "error in GetIPs(%v, %v)", countryCode, limit)
 	assert.Equal(t, expected, ips)
+}
+
+func TestService_GetISPs(t *testing.T) {
+	expected := []string{"FDCServers.net", "Telecom Argentina S.A."}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := mocks.NewMockRepository(ctrl)
+	countryCode := "AR"
+	m.EXPECT().GetISPs(gomock.Eq(countryCode)).Return(expected, nil)
+
+
+	s := domain.NewService(m)
+	ispNames, err := s.GetISPs(countryCode)
+	assert.Nil(t, err, "error in GetISPs(%v)", countryCode)
+	assert.Equal(t, expected, ispNames)
+}
+
+func TestService_GetIPCount(t *testing.T) {
+	expected := 4
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := mocks.NewMockRepository(ctrl)
+	countryCode := "AR"
+	m.EXPECT().GetIPCount(gomock.Eq(countryCode)).Return(expected, nil)
+
+	s := domain.NewService(m)
+	count, err := s.GetIPCount(countryCode)
+	assert.Nil(t, err, "error in GetIPCount(%v)", countryCode)
+	assert.Equal(t, expected, count)
+}
+
+func TestService_GetTopProxyTypes(t *testing.T) {
+	expected := []string{"PUB"}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	m := mocks.NewMockRepository(ctrl)
+	limit := 3
+	m.EXPECT().TopProxyTypes(gomock.Eq(limit)).Return(expected, nil)
+
+	s := domain.NewService(m)
+	proxyTypes, err := s.GetTopProxyTypes(limit)
+	assert.Nil(t, err, "error in TopProxyTypes(%v)", limit)
+	assert.Equal(t, expected, proxyTypes)
 }
 
