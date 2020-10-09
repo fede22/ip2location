@@ -7,8 +7,8 @@
 package main
 
 import (
-	"github.com/fede22/ip2location/internal/rest"
 	"github.com/fede22/ip2location/internal/domain"
+	"github.com/fede22/ip2location/internal/http/rest"
 	"github.com/fede22/ip2location/internal/storage/mysql"
 	"github.com/gin-gonic/gin"
 	"log"
