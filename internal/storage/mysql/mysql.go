@@ -23,10 +23,8 @@ const getISPsQuery = "select isp from ip2proxy_px7 where country_code = ? group 
 const getIPCountQuery = "select sum((ip_to - ip_from) + 1) as ip_count from ip2proxy_px7 where country_code = ?;"
 const topProxyTypesQuery = "select proxy_type, count(*) as proxy_type_count from ip2proxy_px7 group by proxy_type order by proxy_type_count desc limit ?;"
 
-func NewRepository() (client, error) {
-	dataSourceName := "root:rootroot@tcp(localhost:3306)/ip2proxy?charset=utf8"
-	driverName := "mysql"
-	db, err := sql.Open(driverName, dataSourceName)
+func NewRepository(dataSourceName string) (client, error) {
+	db, err := sql.Open("mysql", dataSourceName)
 	if err != nil {
 		return client{}, err
 	}
@@ -113,13 +111,13 @@ func (c client) GetIPCount(countryCode string) (int, error) {
 	return count, nil
 }
 
-func (c client) TopProxyTypes(limit int) ([]string, error) {
+func (c client) TopProxyTypes(limit int) ([]domain.ProxyType, error) {
 	rows, err := c.db.Query(topProxyTypesQuery, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	proxyTypes := make([]string, 0)
+	proxyTypes := make([]domain.ProxyType, 0)
 	for rows.Next() {
 		var pt sql.NullString
 		var count int
@@ -128,7 +126,7 @@ func (c client) TopProxyTypes(limit int) ([]string, error) {
 			return nil, err
 		}
 		if pt.Valid {
-			proxyTypes = append(proxyTypes, pt.String)
+			proxyTypes = append(proxyTypes, domain.ProxyType{ProxyType: pt.String, Count: count})
 		}
 	}
 	if err := rows.Err(); err != nil {

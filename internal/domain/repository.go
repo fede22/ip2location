@@ -5,5 +5,5 @@ type Repository interface {
 	GetProxy(address NetIP) (Proxy, error)
 	GetISPs(countryCode string) ([]string, error)
 	GetIPCount(countryCode string) (int, error)
-	TopProxyTypes(limit int) ([]string, error)
+	TopProxyTypes(limit int) ([]ProxyType, error)
 }

@@ -94,10 +94,10 @@ func (mr *MockServiceMockRecorder) GetIPCount(countryCode interface{}) *gomock.C
 }
 
 // GetTopProxyTypes mocks base method
-func (m *MockService) GetTopProxyTypes(limit int) ([]string, error) {
+func (m *MockService) GetTopProxyTypes(limit int) ([]domain.ProxyType, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTopProxyTypes", limit)
-	ret0, _ := ret[0].([]string)
+	ret0, _ := ret[0].([]domain.ProxyType)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

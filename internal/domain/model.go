@@ -30,6 +30,11 @@ type IP struct {
 	CityName    *string
 }
 
+type ProxyType struct {
+	ProxyType string
+	Count     int
+}
+
 type BigIntIP struct {
 	*big.Int
 }

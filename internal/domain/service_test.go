@@ -110,7 +110,7 @@ func TestService_GetIPCount(t *testing.T) {
 }
 
 func TestService_GetTopProxyTypes(t *testing.T) {
-	expected := []string{"PUB"}
+	expected := []domain.ProxyType{{"PUB", 12345}}
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

@@ -14,7 +14,8 @@ import (
 )
 
 func main() {
-	repo, err := mysql.NewRepository()
+	dataSourceName := "root:rootroot@tcp(localhost:3306)/ip2proxy?charset=utf8"
+	repo, err := mysql.NewRepository(dataSourceName)
 	if err != nil {
 		log.Fatal(err)
 	}

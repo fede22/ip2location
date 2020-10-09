@@ -105,7 +105,6 @@ func TestRouter_GetProxy(t *testing.T) {
 	err = json.Unmarshal(b, &expected)
 	assert.Nil(t, err, "error unmarshalling golden file proxy")
 
-
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	s := mock.NewMockService(ctrl)
@@ -126,7 +125,7 @@ func TestRouter_GetProxy(t *testing.T) {
 }
 
 func TestRouter_GetTopProxyTypes(t *testing.T) {
-	expected := []string{"PUB"}
+	expected := []domain.ProxyType{{ProxyType: "PUB", Count: 12134}}
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -141,9 +140,8 @@ func TestRouter_GetTopProxyTypes(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
-	var current []string
+	var current []domain.ProxyType
 	err = json.Unmarshal(w.Body.Bytes(), &current)
 	assert.Nil(t, err, "error unmarshalling response proxy types")
 	assert.Equal(t, expected, current)
 }
-

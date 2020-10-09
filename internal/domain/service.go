@@ -10,7 +10,7 @@ type Service interface {
 	GetISPs(countryCode string) ([]string, error)
 	GetIPs(countryCode string, limit int) ([]IP, error)
 	GetIPCount(countryCode string) (int, error)
-	GetTopProxyTypes(limit int) ([]string, error)
+	GetTopProxyTypes(limit int) ([]ProxyType, error)
 }
 
 type service struct {
@@ -70,7 +70,7 @@ func (ps service) GetIPCount(countryCode string) (int, error) {
 	return count, nil
 }
 
-func (ps service) GetTopProxyTypes(limit int) ([]string, error) {
+func (ps service) GetTopProxyTypes(limit int) ([]ProxyType, error) {
 	proxyTypes, err := ps.r.TopProxyTypes(limit)
 	if err != nil {
 		return nil, err

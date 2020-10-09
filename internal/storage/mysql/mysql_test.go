@@ -129,5 +129,5 @@ func TestClient_TopProxyTypes(t *testing.T) {
 
 	proxyTypes, err := c.TopProxyTypes(limit)
 	assert.Nil(t, err, "error in TopProxyTypes(%v)", limit)
-	assert.Equal(t, []string{"PUB", "WEB"}, proxyTypes)
+	assert.Equal(t, []domain.ProxyType{{"PUB", 2867607}, {"WEB", 12454}}, proxyTypes)
 }
