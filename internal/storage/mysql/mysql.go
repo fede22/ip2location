@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fede22/ip2location/internal/domain"
 	"math/big"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -70,7 +71,7 @@ func (c client) GetProxy(address domain.NetIP) (domain.Proxy, error) {
 func (c client) GetProxies(countryCode string, limit int) ([]domain.Proxy, error) {
 	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
 		" `as` from ip2proxy.ip2proxy_px7 where country_code = ? limit ?;"
-	rows, err := c.db.Query(query, countryCode, limit)
+	rows, err := c.db.Query(query, strings.ToUpper(countryCode), limit)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +99,7 @@ func (c client) GetProxies(countryCode string, limit int) ([]domain.Proxy, error
 
 func (c client) GetISPs(countryCode string) ([]string, error) {
 	query := "select isp from ip2proxy.ip2proxy_px7 where country_code = ? group by isp;"
-	rows, err := c.db.Query(query, countryCode)
+	rows, err := c.db.Query(query, strings.ToUpper(countryCode))
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +124,7 @@ func (c client) GetISPs(countryCode string) ([]string, error) {
 func (c client) GetIPCount(countryCode string) (int, error) {
 	query := "select sum((ip_to - ip_from) + 1) from ip2proxy.ip2proxy_px7 where country_code = ?;"
 	var count int
-	err := c.db.QueryRow(query, countryCode).Scan(&count)
+	err := c.db.QueryRow(query, strings.ToUpper(countryCode)).Scan(&count)
 	if err != nil {
 		return 0, err
 	}

@@ -68,9 +68,9 @@ func TestService_GetIPs(t *testing.T) {
 	expected := make([]domain.IP, 0)
 	for _, p := range proxies {
 		expected = append(expected, domain.IP{
-			Address: p.AddressFrom,
+			Address:     p.AddressFrom,
 			CountryName: p.CountryName,
-			CityName: p.CityName,
+			CityName:    p.CityName,
 		})
 	}
 
@@ -87,7 +87,6 @@ func TestService_GetISPs(t *testing.T) {
 	m := mock.NewMockRepository(ctrl)
 	countryCode := "AR"
 	m.EXPECT().GetISPs(gomock.Eq(countryCode)).Return(expected, nil)
-
 
 	s := domain.NewService(m)
 	ispNames, err := s.GetISPs(countryCode)
@@ -124,4 +123,3 @@ func TestService_GetTopProxyTypes(t *testing.T) {
 	assert.Nil(t, err, "error in TopProxyTypes(%v)", limit)
 	assert.Equal(t, expected, proxyTypes)
 }
-

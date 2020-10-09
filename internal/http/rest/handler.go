@@ -21,6 +21,7 @@ func Ping(c *gin.Context) {
 	c.String(200, "pong")
 }
 
+//TODO should only work with AR
 func GetIPs(s domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		countryCode, limit := c.Param("country_code"), 50
