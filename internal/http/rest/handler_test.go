@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestPingRoute(t *testing.T) {
+func TestRouter_Ping(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 	m := mock.NewMockService(ctrl)
@@ -22,3 +22,4 @@ func TestPingRoute(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, "pong", w.Body.String())
 }
+

@@ -84,7 +84,7 @@ func TestIp2proxy_realDB(t *testing.T) {
 
 }
 
-func TestMySQL_localDB(t *testing.T) {
+func TestNewRepository(t *testing.T) {
 	client, err := NewRepository()
 	if err != nil {
 		t.Fatal(err)
@@ -114,7 +114,7 @@ func TestMySQL_localDB(t *testing.T) {
 	t.Log(from, to)
 }
 
-func TestMySQL_GetIP(t *testing.T) {
+func TestClient_GetIP(t *testing.T) {
 	client, err := NewRepository()
 	if err != nil {
 		t.Fatal(err)
@@ -131,7 +131,7 @@ func TestMySQL_GetIP(t *testing.T) {
 	t.Log(p)
 }
 
-func TestMySQL_GetProxies(t *testing.T) {
+func TestClient_GetProxies(t *testing.T) {
 	client, err := NewRepository()
 	if err != nil {
 		t.Fatal(err)
@@ -145,7 +145,7 @@ func TestMySQL_GetProxies(t *testing.T) {
 	t.Log(p)
 }
 
-func TestMySQL_GetISPs(t *testing.T) {
+func TestClient_GetISPs(t *testing.T) {
 	client, err := NewRepository()
 	if err != nil {
 		t.Fatal(err)
@@ -159,7 +159,7 @@ func TestMySQL_GetISPs(t *testing.T) {
 	t.Log(len(p), p)
 }
 
-func TestMySQL_GetIPCount(t *testing.T) {
+func TestClient_GetIPCount(t *testing.T) {
 	client, err := NewRepository()
 	if err != nil {
 		t.Fatal(err)
@@ -173,7 +173,7 @@ func TestMySQL_GetIPCount(t *testing.T) {
 	t.Log(count)
 }
 
-func TestMySQL_TopProxyTypes(t *testing.T) {
+func TestClient_TopProxyTypes(t *testing.T) {
 	client, err := NewRepository()
 	if err != nil {
 		t.Fatal(err)
