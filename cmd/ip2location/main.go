@@ -10,27 +10,15 @@ import (
 	"github.com/fede22/ip2location/internal/domain"
 	"github.com/fede22/ip2location/internal/http/rest"
 	"github.com/fede22/ip2location/internal/storage/mysql"
-	"github.com/gin-gonic/gin"
 	"log"
 )
 
 func main() {
-	r := gin.Default()
-
-	repo, err := mysql.NewProxyRepository()
+	repo, err := mysql.NewRepository()
 	if err != nil {
 		log.Fatal(err)
 	}
 	s := domain.NewService(repo)
-
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "pong"})
-	})
-	r.GET("/country/:country_code/ip", rest.GetIPs(s))
-	r.GET("/country/:country_code/isp", rest.GetISPs(s))
-	r.GET("/country/:country_code/ip_count", rest.GetIPCount(s))
-	r.GET("/ip/:address", rest.GetProxy(s))
-	r.GET("/top_proxy_types", rest.GetTopProxyTypes(s))
-
+	r := rest.NewRouter(s)
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

@@ -5,6 +5,15 @@ import (
 	"net"
 )
 
+//TODO rename to Service
+type ProxyService interface {
+	GetProxy(address string) (Proxy, error)
+	GetISPs(countryCode string) ([]string, error)
+	GetIPs(countryCode string, limit int) ([]IP, error)
+	GetIPCount(countryCode string) (int, error)
+	GetTopProxyTypes(limit int) ([]string, error)
+}
+
 type service struct {
 	r Repository
 }

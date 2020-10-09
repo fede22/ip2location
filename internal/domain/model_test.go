@@ -2,7 +2,7 @@ package domain
 
 import (
 	"encoding/json"
-	"github.com/go-playground/assert/v2"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net"
 	"testing"
@@ -25,7 +25,7 @@ func TestIPv6ToDecimalAndBack(t *testing.T) {
 }
 
 func TestNetblock(t *testing.T) {
-	b, err := ioutil.ReadFile("mocks/testdata/proxy_ar.json")
+	b, err := ioutil.ReadFile("mock/testdata/proxy_ar.json")
 	if err != nil {
 		t.Fatalf("error loading golden file: %s", err)
 	}

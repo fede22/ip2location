@@ -16,7 +16,8 @@ type client struct {
 
 type decimalIP string
 
-func NewProxyRepository() (client, error) {
+//Rename to Repository
+func NewRepository() (client, error) {
 	dataSourceName := "root:rootroot@tcp(localhost:3306)/ip2proxy?charset=utf8"
 	return newClient(dataSourceName, 10, 10, time.Minute*3)
 }

@@ -2,7 +2,7 @@
 // Source: repository.go
 
 // Package mocks is a generated GoMock package.
-package mocks
+package mock
 
 import (
 	proxy "github.com/fede22/ip2location/internal/domain"
