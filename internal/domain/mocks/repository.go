@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	proxy "github.com/fede22/ip2location/internal/proxy"
+	proxy "github.com/fede22/ip2location/internal/domain"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )

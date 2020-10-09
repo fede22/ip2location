@@ -8,7 +8,7 @@ package main
 
 import (
 	"github.com/fede22/ip2location/internal/rest"
-	"github.com/fede22/ip2location/internal/proxy"
+	"github.com/fede22/ip2location/internal/domain"
 	"github.com/fede22/ip2location/internal/storage/mysql"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s := proxy.NewService(repo)
+	s := domain.NewService(repo)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})

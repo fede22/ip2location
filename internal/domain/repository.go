@@ -1,4 +1,4 @@
-package proxy
+package domain
 
 type Repository interface {
 	GetProxies(countryCode string, limit int) ([]Proxy, error)

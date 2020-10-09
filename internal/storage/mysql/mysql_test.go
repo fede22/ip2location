@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"fmt"
-	"github.com/fede22/ip2location/internal/proxy"
+	"github.com/fede22/ip2location/internal/domain"
 	"github.com/ip2location/ip2proxy-go"
 	"net"
 	"testing"
@@ -120,7 +120,7 @@ func TestMySQL_GetIP(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ip := proxy.NetIP{IP: net.ParseIP("1.0.4.1")}
+	ip := domain.NetIP{IP: net.ParseIP("1.0.4.1")}
 	p, err := client.GetProxy(ip)
 	if err != nil {
 		t.Fatal(err)

@@ -1,4 +1,4 @@
-package proxy
+package domain
 
 import (
 	"math/big"
