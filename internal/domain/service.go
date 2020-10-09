@@ -5,8 +5,7 @@ import (
 	"net"
 )
 
-//TODO rename to Service
-type ProxyService interface {
+type Service interface {
 	GetProxy(address string) (Proxy, error)
 	GetISPs(countryCode string) ([]string, error)
 	GetIPs(countryCode string, limit int) ([]IP, error)

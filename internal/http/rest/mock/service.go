@@ -10,31 +10,31 @@ import (
 	reflect "reflect"
 )
 
-// MockProxyService is a mock of ProxyService interface
-type MockProxyService struct {
+// MockService is a mock of Service interface
+type MockService struct {
 	ctrl     *gomock.Controller
-	recorder *MockProxyServiceMockRecorder
+	recorder *MockServiceMockRecorder
 }
 
-// MockProxyServiceMockRecorder is the mock recorder for MockProxyService
-type MockProxyServiceMockRecorder struct {
-	mock *MockProxyService
+// MockServiceMockRecorder is the mock recorder for MockService
+type MockServiceMockRecorder struct {
+	mock *MockService
 }
 
-// NewMockProxyService creates a new mock instance
-func NewMockProxyService(ctrl *gomock.Controller) *MockProxyService {
-	mock := &MockProxyService{ctrl: ctrl}
-	mock.recorder = &MockProxyServiceMockRecorder{mock}
+// NewMockService creates a new mock instance
+func NewMockService(ctrl *gomock.Controller) *MockService {
+	mock := &MockService{ctrl: ctrl}
+	mock.recorder = &MockServiceMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockProxyService) EXPECT() *MockProxyServiceMockRecorder {
+func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
 // GetProxy mocks base method
-func (m *MockProxyService) GetProxy(address string) (domain.Proxy, error) {
+func (m *MockService) GetProxy(address string) (domain.Proxy, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetProxy", address)
 	ret0, _ := ret[0].(domain.Proxy)
@@ -43,13 +43,13 @@ func (m *MockProxyService) GetProxy(address string) (domain.Proxy, error) {
 }
 
 // GetProxy indicates an expected call of GetProxy
-func (mr *MockProxyServiceMockRecorder) GetProxy(address interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) GetProxy(address interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProxy", reflect.TypeOf((*MockProxyService)(nil).GetProxy), address)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProxy", reflect.TypeOf((*MockService)(nil).GetProxy), address)
 }
 
 // GetISPs mocks base method
-func (m *MockProxyService) GetISPs(countryCode string) ([]string, error) {
+func (m *MockService) GetISPs(countryCode string) ([]string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetISPs", countryCode)
 	ret0, _ := ret[0].([]string)
@@ -58,13 +58,13 @@ func (m *MockProxyService) GetISPs(countryCode string) ([]string, error) {
 }
 
 // GetISPs indicates an expected call of GetISPs
-func (mr *MockProxyServiceMockRecorder) GetISPs(countryCode interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) GetISPs(countryCode interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetISPs", reflect.TypeOf((*MockProxyService)(nil).GetISPs), countryCode)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetISPs", reflect.TypeOf((*MockService)(nil).GetISPs), countryCode)
 }
 
 // GetIPs mocks base method
-func (m *MockProxyService) GetIPs(countryCode string, limit int) ([]domain.IP, error) {
+func (m *MockService) GetIPs(countryCode string, limit int) ([]domain.IP, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetIPs", countryCode, limit)
 	ret0, _ := ret[0].([]domain.IP)
@@ -73,13 +73,13 @@ func (m *MockProxyService) GetIPs(countryCode string, limit int) ([]domain.IP, e
 }
 
 // GetIPs indicates an expected call of GetIPs
-func (mr *MockProxyServiceMockRecorder) GetIPs(countryCode, limit interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) GetIPs(countryCode, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIPs", reflect.TypeOf((*MockProxyService)(nil).GetIPs), countryCode, limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIPs", reflect.TypeOf((*MockService)(nil).GetIPs), countryCode, limit)
 }
 
 // GetIPCount mocks base method
-func (m *MockProxyService) GetIPCount(countryCode string) (int, error) {
+func (m *MockService) GetIPCount(countryCode string) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetIPCount", countryCode)
 	ret0, _ := ret[0].(int)
@@ -88,13 +88,13 @@ func (m *MockProxyService) GetIPCount(countryCode string) (int, error) {
 }
 
 // GetIPCount indicates an expected call of GetIPCount
-func (mr *MockProxyServiceMockRecorder) GetIPCount(countryCode interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) GetIPCount(countryCode interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIPCount", reflect.TypeOf((*MockProxyService)(nil).GetIPCount), countryCode)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIPCount", reflect.TypeOf((*MockService)(nil).GetIPCount), countryCode)
 }
 
 // GetTopProxyTypes mocks base method
-func (m *MockProxyService) GetTopProxyTypes(limit int) ([]string, error) {
+func (m *MockService) GetTopProxyTypes(limit int) ([]string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTopProxyTypes", limit)
 	ret0, _ := ret[0].([]string)
@@ -103,7 +103,7 @@ func (m *MockProxyService) GetTopProxyTypes(limit int) ([]string, error) {
 }
 
 // GetTopProxyTypes indicates an expected call of GetTopProxyTypes
-func (mr *MockProxyServiceMockRecorder) GetTopProxyTypes(limit interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) GetTopProxyTypes(limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopProxyTypes", reflect.TypeOf((*MockProxyService)(nil).GetTopProxyTypes), limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTopProxyTypes", reflect.TypeOf((*MockService)(nil).GetTopProxyTypes), limit)
 }

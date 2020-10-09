@@ -12,7 +12,7 @@ import (
 func TestPingRoute(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	m := mock.NewMockProxyService(ctrl)
+	m := mock.NewMockService(ctrl)
 	r := NewRouter(m)
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("GET", "/ping", nil)

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func NewRouter(s domain.ProxyService) *gin.Engine {
+func NewRouter(s domain.Service) *gin.Engine {
 	r := gin.Default()
 	r.GET("/ping", Ping)
 	r.GET("/country/:country_code/ip", GetIPs(s))
@@ -21,7 +21,7 @@ func Ping(c *gin.Context) {
 	c.String(200, "pong")
 }
 
-func GetIPs(s domain.ProxyService) func(c *gin.Context) {
+func GetIPs(s domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		countryCode, limit := c.Param("country_code"), 50
 		ips, err := s.GetIPs(countryCode, limit)
@@ -33,7 +33,7 @@ func GetIPs(s domain.ProxyService) func(c *gin.Context) {
 	}
 }
 
-func GetISPs(s domain.ProxyService) func(c *gin.Context) {
+func GetISPs(s domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		countryCode := c.Param("country_code")
 		ispNames, err := s.GetISPs(countryCode)
@@ -45,7 +45,7 @@ func GetISPs(s domain.ProxyService) func(c *gin.Context) {
 	}
 }
 
-func GetIPCount(s domain.ProxyService) func(c *gin.Context) {
+func GetIPCount(s domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		countryCode := c.Param("country_code")
 		count, err := s.GetIPCount(countryCode)
@@ -57,7 +57,7 @@ func GetIPCount(s domain.ProxyService) func(c *gin.Context) {
 	}
 }
 
-func GetProxy(s domain.ProxyService) func(c *gin.Context) {
+func GetProxy(s domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		address := c.Param("address")
 		proxy, err := s.GetProxy(address)
@@ -69,7 +69,7 @@ func GetProxy(s domain.ProxyService) func(c *gin.Context) {
 	}
 }
 
-func GetTopProxyTypes(s domain.ProxyService) func(c *gin.Context) {
+func GetTopProxyTypes(s domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		limit := 3
 		proxyTypes, err := s.GetTopProxyTypes(limit)
