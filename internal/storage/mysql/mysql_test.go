@@ -1,88 +1,14 @@
 package mysql
 
 import (
-	"fmt"
+	"bufio"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/fede22/ip2location/internal/domain"
-	"github.com/ip2location/ip2proxy-go"
+	"github.com/stretchr/testify/assert"
 	"net"
+	"os"
 	"testing"
 )
-
-const path = "../../ignore"
-
-func TestIp2proxy_sampleDB(t *testing.T) {
-	t.Log("running")
-
-	db, err := ip2proxy.OpenDB(path + "/sample.bin.px7/IP2PROXY-IP-PROXYTYPE-COUNTRY-REGION-CITY-ISP-DOMAIN-USAGETYPE-ASN.BIN")
-
-	if err != nil {
-		return
-	}
-	ip := "199.83.103.79"
-	all, err := db.GetAll(ip)
-
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	fmt.Printf("ModuleVersion: %s\n", ip2proxy.ModuleVersion())
-	fmt.Printf("PackageVersion: %s\n", db.PackageVersion())
-	fmt.Printf("DatabaseVersion: %s\n", db.DatabaseVersion())
-
-	fmt.Printf("isProxy: %s\n", all["isProxy"])
-	fmt.Printf("ProxyType: %s\n", all["ProxyType"])
-	fmt.Printf("CountryShort: %s\n", all["CountryShort"])
-	fmt.Printf("CountryLong: %s\n", all["CountryLong"])
-	fmt.Printf("RegionName: %s\n", all["RegionName"])
-	fmt.Printf("CityName: %s\n", all["CityName"])
-	fmt.Printf("ISP: %s\n", all["ISP"])
-	fmt.Printf("Domain: %s\n", all["Domain"])
-	fmt.Printf("UsageType: %s\n", all["UsageType"])
-	fmt.Printf("ASN: %s\n", all["ASN"])
-	fmt.Printf("AS: %s\n", all["AS"])
-	fmt.Printf("LastSeen: %s\n", all["LastSeen"])
-	fmt.Printf("Threat: %s\n", all["Threat"])
-
-	db.Close()
-
-}
-
-func TestIp2proxy_realDB(t *testing.T) {
-	t.Log("running")
-
-	db, err := ip2proxy.OpenDB(path + "/IP2PROXY-LITE-PX7.BIN/IP2PROXY-LITE-PX7.BIN")
-
-	if err != nil {
-		return
-	}
-	ip := "1.0.132.50"
-	all, err := db.GetAll(ip)
-
-	if err != nil {
-		fmt.Print(err)
-		return
-	}
-	fmt.Printf("ModuleVersion: %s\n", ip2proxy.ModuleVersion())
-	fmt.Printf("PackageVersion: %s\n", db.PackageVersion())
-	fmt.Printf("DatabaseVersion: %s\n", db.DatabaseVersion())
-
-	fmt.Printf("isProxy: %s\n", all["isProxy"])
-	fmt.Printf("ProxyType: %s\n", all["ProxyType"])
-	fmt.Printf("CountryShort: %s\n", all["CountryShort"])
-	fmt.Printf("CountryLong: %s\n", all["CountryLong"])
-	fmt.Printf("RegionName: %s\n", all["RegionName"])
-	fmt.Printf("CityName: %s\n", all["CityName"])
-	fmt.Printf("ISP: %s\n", all["ISP"])
-	fmt.Printf("Domain: %s\n", all["Domain"])
-	fmt.Printf("UsageType: %s\n", all["UsageType"])
-	fmt.Printf("ASN: %s\n", all["ASN"])
-	fmt.Printf("AS: %s\n", all["AS"])
-	fmt.Printf("LastSeen: %s\n", all["LastSeen"])
-	fmt.Printf("Threat: %s\n", all["Threat"])
-
-	db.Close()
-
-}
 
 func TestNewRepository(t *testing.T) {
 	client, err := NewRepository()
@@ -114,7 +40,7 @@ func TestNewRepository(t *testing.T) {
 	t.Log(from, to)
 }
 
-func TestClient_GetIP(t *testing.T) {
+func TestClient_GetProxy(t *testing.T) {
 	client, err := NewRepository()
 	if err != nil {
 		t.Fatal(err)
@@ -129,6 +55,36 @@ func TestClient_GetIP(t *testing.T) {
 		t.Errorf("expected address_from %s, got instead %s", ip, p.AddressFrom)
 	}
 	t.Log(p)
+}
+
+func TestClient_GetProxy_Mock(t *testing.T) {
+	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+	assert.Nil(t, err, "error opening mock database connection")
+	defer db.Close()
+	defer func() {
+		assert.Nil(t, mock.ExpectationsWereMet(), "there were unfulfilled expectations")
+	}()
+	columns := []string{"ip_from", "ip_to", "proxy_type", "country_code", "country_name", "region_name", "city_name",
+		"isp", "domain", "usage_type", "asn", "as"}
+	ip := domain.NetIP{IP: net.ParseIP("1.0.4.1")}
+
+	file, err := os.Open("testdata/get_proxy.csv")
+	assert.Nil(t, err, "couldn't open csv file")
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		mock.ExpectQuery(getProxyQuery).
+			WithArgs(toDecimalIP(ip)).
+			WillReturnRows(
+				sqlmock.NewRows(columns).
+					FromCSVString(scanner.Text()))
+	}
+	assert.Nil(t, scanner.Err(), "non EOF error encountered by scanner")
+
+	c := client{db}
+	p, err := c.GetProxy(ip)
+	assert.Nil(t, err, "error in GetProxy(%v)", ip)
+	assert.Equal(t, ip, p.AddressFrom)
 }
 
 func TestClient_GetProxies(t *testing.T) {

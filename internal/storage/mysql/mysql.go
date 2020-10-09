@@ -17,24 +17,18 @@ type client struct {
 
 type decimalIP string
 
-//Rename to Repository
+const getProxyQuery = "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn, `as` from ip2proxy_px7 where ? between ip_from and ip_to;"
+
 func NewRepository() (client, error) {
 	dataSourceName := "root:rootroot@tcp(localhost:3306)/ip2proxy?charset=utf8"
-	return newClient(dataSourceName, 10, 10, time.Minute*3)
-}
-
-func newClient(dataSourceName string, maxOpenConns, maxIdleConns int, connMaxLifetime time.Duration) (client, error) {
 	driverName := "mysql"
 	db, err := sql.Open(driverName, dataSourceName)
 	if err != nil {
 		return client{}, err
 	}
-	db.SetMaxOpenConns(maxOpenConns)
-	db.SetMaxIdleConns(maxIdleConns)
-	if connMaxLifetime.Minutes() > 5 {
-		return client{}, fmt.Errorf("connMaxLifetime should not be greater than 5 min")
-	}
-	db.SetConnMaxLifetime(connMaxLifetime)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
+	db.SetConnMaxLifetime(time.Minute * 3)
 	if err := db.Ping(); err != nil {
 		return client{}, err
 	}
@@ -43,26 +37,14 @@ func newClient(dataSourceName string, maxOpenConns, maxIdleConns int, connMaxLif
 
 func (c client) GetProxy(address domain.NetIP) (domain.Proxy, error) {
 	var p domain.Proxy
-	query := "select ip_from, ip_to, proxy_type, country_code, country_name, region_name, city_name, isp, domain, usage_type, asn," +
-		" `as` from ip2proxy.ip2proxy_px7 where ? between ip_from and ip_to;"
-	rows, err := c.db.Query(query, toDecimalIP(address))
+	var addressFrom, addressTo decimalIP
+	err := c.db.QueryRow(getProxyQuery, toDecimalIP(address)).Scan(&addressFrom, &addressTo, &p.ProxyType, &p.CountryCode,
+		&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
 	if err != nil {
 		return domain.Proxy{}, err
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var addressFrom, addressTo decimalIP
-		err := rows.Scan(&addressFrom, &addressTo, &p.ProxyType, &p.CountryCode,
-			&p.CountryName, &p.RegionName, &p.CityName, &p.ISP, &p.Domain, &p.UsageType, &p.ASN, &p.AS)
-		if err != nil {
-			return domain.Proxy{}, err
-		}
-		p, err = setAddresses(p, addressFrom, addressTo)
-		if err != nil {
-			return domain.Proxy{}, err
-		}
-	}
-	if err := rows.Err(); err != nil {
+	p, err = setAddresses(p, addressFrom, addressTo)
+	if err != nil {
 		return domain.Proxy{}, err
 	}
 	return p, nil
