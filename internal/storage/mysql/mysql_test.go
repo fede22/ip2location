@@ -11,54 +11,7 @@ import (
 	"testing"
 )
 
-func TestNewRepository(t *testing.T) {
-	client, err := NewRepository()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var (
-		from string
-		to   string
-	)
-
-	query := "select ip_from, ip_to from ip2proxy_px7 limit 1"
-	rows, err := client.db.Query(query)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&from, &to)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(from, to)
-}
-
 func TestClient_GetProxy(t *testing.T) {
-	client, err := NewRepository()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	ip := domain.NetIP{IP: net.ParseIP("1.0.4.1")}
-	p, err := client.GetProxy(ip)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !p.AddressFrom.Equal(ip.IP) {
-		t.Errorf("expected address_from %s, got instead %s", ip, p.AddressFrom)
-	}
-	t.Log(p)
-}
-
-func TestClient_GetProxy_Mock(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	assert.Nil(t, err, "error opening mock database connection")
 	defer db.Close()
@@ -83,20 +36,6 @@ func TestClient_GetProxy_Mock(t *testing.T) {
 }
 
 func TestClient_GetProxies(t *testing.T) {
-	client, err := NewRepository()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	countryCode, limit := "AR", 50
-	p, err := client.GetProxies(countryCode, limit)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(p)
-}
-
-func TestClient_GetProxies_Mock(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	assert.Nil(t, err, "error opening mock database connection")
 	defer db.Close()
@@ -124,20 +63,6 @@ func TestClient_GetProxies_Mock(t *testing.T) {
 }
 
 func TestClient_GetISPs(t *testing.T) {
-	client, err := NewRepository()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	countryCode := "FR"
-	ipsNames, err := client.GetISPs(countryCode)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(len(ipsNames), ipsNames)
-}
-
-func TestClient_GetISPs_Mock(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	assert.Nil(t, err, "error opening mock database connection")
 	defer db.Close()
@@ -161,7 +86,7 @@ func TestClient_GetISPs_Mock(t *testing.T) {
 	assert.Equal(t, "Azul Networks S.R.L", ispNames[9])
 }
 
-func TestClient_GetIPCount_Mock(t *testing.T) {
+func TestClient_GetIPCount(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	assert.Nil(t, err, "error opening mock database connection")
 	defer db.Close()
@@ -184,35 +109,7 @@ func TestClient_GetIPCount_Mock(t *testing.T) {
 	assert.Equal(t, expected, count)
 }
 
-func TestClient_GetIPCount(t *testing.T) {
-	client, err := NewRepository()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	countryCode := "AR"
-	count, err := client.GetIPCount(countryCode)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(count)
-}
-
 func TestClient_TopProxyTypes(t *testing.T) {
-	client, err := NewRepository()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	limit := 3
-	proxyTypes, err := client.TopProxyTypes(limit)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log(len(proxyTypes), proxyTypes)
-}
-
-func TestClient_TopProxyTypes_Mock(t *testing.T) {
 	db, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 	assert.Nil(t, err, "error opening mock database connection")
 	defer db.Close()
