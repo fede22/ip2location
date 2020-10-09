@@ -34,6 +34,7 @@ func GetIPs(s domain.Service) func(c *gin.Context) {
 	}
 }
 
+//TODO should only work with FR
 func GetISPs(s domain.Service) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		countryCode := c.Param("country_code")
