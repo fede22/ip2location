@@ -10,6 +10,8 @@ docker run --name ip2location-db --network ip2location-network -e MYSQL_ALLOW_EM
 docker run --name ip2location-app --network ip2location-network -p 8080:8080 -d ip2location-app 
 ```
 
+Tener en cuenta al inicializar la APP con el último comando que si la DB aun no cargó toda la data desde los archivos CSV la conexión desde la APP a la misma puede fallar. Esperar un minuto luego de inicializar la DB para evitar esto.
+
 Los endpoints son:
 
 ```http
